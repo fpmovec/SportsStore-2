@@ -7,12 +7,18 @@ builder.Services.AddDbContext<StoreDbContext>(opts =>
 {
     opts.UseSqlServer(ConfigurationExtensions.GetConnectionString(builder.Configuration, "SportsStoreConnection"));
 });
+builder.Services.AddRazorPages();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
+builder.Services.AddScoped<Cart>(sp => SessionCart.GetCart(sp));
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
 app.UseStaticFiles();
 app.UseStatusCodePages();
 app.UseRouting();
+app.UseSession();
 app.UseEndpoints(endpoints => {
     endpoints.MapControllerRoute("catpage",
         "{category}/Page{productPage:int}", new {Controller = "Home", action = "Index"});
@@ -22,7 +28,8 @@ app.UseEndpoints(endpoints => {
 	"{category}", new { Controller = "Home", action = "Index", productPage = 1 });
 	endpoints.MapControllerRoute("pagination",
         "Products/Page{productPage}", new { Controller = "Home", action = "Index", productPage = 1});
-    endpoints.MapDefaultControllerRoute(); 
+    endpoints.MapDefaultControllerRoute();
+    endpoints.MapRazorPages();
 });
 SeedData.EnsurePopulated(app);
 app.Run();
