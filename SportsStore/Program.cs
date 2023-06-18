@@ -14,6 +14,8 @@ builder.Services.AddScoped<Cart>(sp => SessionCart.GetCart(sp));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IStoreRepository, EFStoreRepository>();
 builder.Services.AddScoped<IOrderRepository, EFOrderRepository>();
+builder.Services.AddServerSideBlazor();
+
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
 app.UseStaticFiles();
@@ -31,6 +33,8 @@ app.UseEndpoints(endpoints => {
         "Products/Page{productPage}", new { Controller = "Home", action = "Index", productPage = 1});
     endpoints.MapDefaultControllerRoute();
     endpoints.MapRazorPages();
+    endpoints.MapBlazorHub();
+    endpoints.MapFallbackToPage("/admin/{*catchall}", "/Admin/Index");
 });
 SeedData.EnsurePopulated(app);
 app.Run();
